@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Student Search & Rank System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container">
+        <h1>📚 Smart Student Search &amp; Rank System</h1>
+        <p class="subtitle">Store, search, sort, and rank students — all in one place.</p>
+
+        <div class="menu-grid">
+            <a href="/add" class="menu-card">
+                <span class="menu-icon">➕</span>
+                <span>Add Student</span>
+            </a>
+            <a href="/students" class="menu-card">
+                <span class="menu-icon">📋</span>
+                <span>View Students</span>
+            </a>
+            <a href="/search" class="menu-card">
+                <span class="menu-icon">🔍</span>
+                <span>Search Student</span>
+            </a>
+            <a href="/sorted" class="menu-card">
+                <span class="menu-icon">🔃</span>
+                <span>Sort by Marks</span>
+            </a>
+            <a href="/rank" class="menu-card">
+                <span class="menu-icon">🏆</span>
+                <span>Rank Students</span>
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>

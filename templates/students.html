@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Students</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container container-wide">
+        <h1>📋 View Students</h1>
+        <p class="subtitle">All students currently stored in the database.</p>
+
+        {% if students|length == 0 %}
+            <p class="empty-message">No students added yet. Go to "Add Student" to add your first one.</p>
+        {% else %}
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student["roll_no"] }}</td>
+                        <td>{{ student["name"] }}</td>
+                        <td>{{ student["marks"] }}</td>
+                        <td class="actions-cell">
+                            <a href="/edit/{{ student['id'] }}" class="btn-small btn-edit">Edit</a>
+                            <a href="/delete/{{ student['id'] }}" class="btn-small btn-delete">Delete</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <a href="/" class="back-link">&larr; Back to Home</a>
+    </div>
+
+</body>
+</html>

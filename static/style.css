@@ -1,0 +1,229 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    background: #ffffff;
+    max-width: 800px;
+    width: 100%;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+h1 {
+    text-align: center;
+    color: #333333;
+    font-size: 28px;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #666666;
+    margin-bottom: 32px;
+    font-size: 15px;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.menu-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #f4f6ff;
+    border: 2px solid #e0e4ff;
+    border-radius: 12px;
+    padding: 24px 12px;
+    text-decoration: none;
+    color: #4a4a4a;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.menu-card:hover {
+    background: #667eea;
+    border-color: #667eea;
+    color: #ffffff;
+    transform: translateY(-3px);
+}
+
+.menu-icon {
+    font-size: 28px;
+}
+
+/* Responsive layout: stack menu into fewer columns on small screens */
+@media (max-width: 600px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    h1 {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 400px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+}
+.alert-error {
+    background: #ffe5e5;
+    color: #c62828;
+    border: 1px solid #ffb3b3;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.student-form {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.student-form label {
+    font-weight: 600;
+    color: #444444;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.student-form input {
+    padding: 12px 14px;
+    border: 2px solid #e0e4ff;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.student-form input:focus {
+    border-color: #667eea;
+}
+
+.btn-primary {
+    margin-top: 20px;
+    padding: 14px;
+    background: #667eea;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+    background: #5568d3;
+}
+
+.back-link {
+    display: inline-block;
+    margin-top: 20px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+.container-wide {
+    max-width: 900px;
+}
+
+.empty-message {
+    text-align: center;
+    color: #888888;
+    padding: 30px 0;
+    font-size: 15px;
+}
+
+.student-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.student-table th,
+.student-table td {
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid #eeeeee;
+    font-size: 14px;
+}
+
+.student-table th {
+    background: #f4f6ff;
+    color: #444444;
+    font-weight: 700;
+}
+
+.student-table tr:hover {
+    background: #fafbff;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-small {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: #fff3cd;
+    color: #7a5b00;
+}
+
+.btn-edit:hover {
+    background: #ffe69c;
+}
+
+.btn-delete {
+    background: #ffe0e0;
+    color: #a30000;
+}
+
+.btn-delete:hover {
+    background: #ffc7c7;
+}
+
+/* Make the table scrollable sideways on very small screens instead of squishing */
+@media (max-width: 600px) {
+    .student-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+}
