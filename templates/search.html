@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Student</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container container-wide">
+        <h1>🔍 Search Student</h1>
+        <p class="subtitle">Type a name (or part of a name) to find matching students.</p>
+
+        <form method="GET" action="/search" class="search-form">
+            <input type="text" name="name" placeholder="e.g. Anita" value="{{ query }}">
+            <button type="submit" class="btn-primary">Search</button>
+        </form>
+
+        {% if query != "" %}
+            {% if results|length == 0 %}
+                <p class="empty-message">No students found matching "{{ query }}".</p>
+            {% else %}
+                <table class="student-table">
+                    <thead>
+                        <tr>
+                            <th>Roll No</th>
+                            <th>Name</th>
+                            <th>Marks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in results %}
+                        <tr>
+                            <td>{{ student["roll_no"] }}</td>
+                            <td>{{ student["name"] }}</td>
+                            <td>{{ student["marks"] }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+
+        <a href="/" class="back-link">&larr; Back to Home</a>
+    </div>
+
+</body>
+</html>

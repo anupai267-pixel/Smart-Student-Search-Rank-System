@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rank Students</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="container container-wide">
+        <h1>🏆 Rank Students</h1>
+        <p class="subtitle">Students ranked by marks. Equal marks share the same rank.</p>
+
+        {% if ranked_students|length == 0 %}
+            <p class="empty-message">No students added yet. Go to "Add Student" to add your first one.</p>
+        {% else %}
+            <table class="student-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Roll No</th>
+                        <th>Name</th>
+                        <th>Marks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in ranked_students %}
+                    <tr>
+                        <td>
+                            {% if item.rank == 1 %}🥇{% elif item.rank == 2 %}🥈{% elif item.rank == 3 %}🥉{% endif %}
+                            {{ item.rank }}
+                        </td>
+                        <td>{{ item.roll_no }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.marks }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+
+        <a href="/" class="back-link">&larr; Back to Home</a>
+    </div>
+
+</body>
+</html>
