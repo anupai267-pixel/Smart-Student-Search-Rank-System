@@ -1,22 +1,107 @@
-from flask import Flask, render_template, request, redirect, url_for
+from functools import wraps
+from flask import Flask, render_template, request, redirect, url_for, session
+from werkzeug.security import generate_password_hash, check_password_hash
 import database
 
 app = Flask(__name__)
+app.secret_key = "smart-student-system-secret-key"  # used to secure session data
 
-# Make sure the database and table exist as soon as the app starts.
+# Make sure both database tables exist as soon as the app starts.
 database.create_table()
+database.create_users_table()
+
+
+def login_required(view_function):
+    """
+    This is a 'decorator'. Placing @login_required above any route function
+    means: before running that function, first check if the visitor is logged in.
+    If not, redirect them to the login page instead.
+    """
+    @wraps(view_function)
+    def wrapped_view(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        return view_function(*args, **kwargs)
+    return wrapped_view
 
 
 @app.route("/")
 def home():
     """
-    This function runs when someone visits the home page ("/").
-    It shows a simple welcome page with links to every feature.
+    Shows the home page. If the visitor is logged in, show the full feature menu.
+    If not, show Login/Register buttons instead.
     """
-    return render_template("index.html")
+    is_logged_in = "user_id" in session
+    username = session.get("username")
+    return render_template("index.html", is_logged_in=is_logged_in, username=username)
+
+
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """
+    GET: Show an empty registration form.
+    POST: Validate and create a new user account, then redirect to login.
+    """
+    error_message = None
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+        confirm_password = request.form.get("confirm_password", "").strip()
+
+        if username == "" or password == "" or confirm_password == "":
+            error_message = "All fields are required."
+        elif password != confirm_password:
+            error_message = "Passwords do not match."
+        elif len(password) < 4:
+            error_message = "Password must be at least 4 characters long."
+        else:
+            password_hash = generate_password_hash(password)
+            success = database.add_user(username, password_hash)
+            if success:
+                return redirect(url_for("login"))
+            else:
+                error_message = f"Username '{username}' is already taken. Please choose another."
+
+    return render_template("register.html", error_message=error_message)
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """
+    GET: Show an empty login form.
+    POST: Check the entered username/password against the database.
+          If correct, store the user's info in the session and redirect to home.
+    """
+    error_message = None
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        user = database.get_user_by_username(username)
+
+        if user is None or not check_password_hash(user["password_hash"], password):
+            error_message = "Invalid username or password."
+        else:
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            return redirect(url_for("home"))
+
+    return render_template("login.html", error_message=error_message)
+
+
+@app.route("/logout")
+def logout():
+    """
+    Clears the session, logging the user out, then redirects to home.
+    """
+    session.clear()
+    return redirect(url_for("home"))
 
 
 @app.route("/add", methods=["GET", "POST"])
+@login_required
 def add_student():
     """
     GET: Show an empty form to add a new student.
@@ -30,7 +115,6 @@ def add_student():
         name = request.form.get("name", "").strip()
         marks = request.form.get("marks", "").strip()
 
-        # --- Input validation (Day 20 equivalent: no negative marks, no empty names) ---
         if name == "" or roll_no == "" or marks == "":
             error_message = "All fields are required. Please fill in every field."
         elif not roll_no.isdigit():
@@ -40,7 +124,6 @@ def add_student():
         elif int(marks) > 100:
             error_message = "Marks cannot be greater than 100."
         else:
-            # All checks passed, try to save to the database
             success = database.add_student(int(roll_no), name, int(marks))
             if success:
                 return redirect(url_for("view_students"))
@@ -51,6 +134,7 @@ def add_student():
 
 
 @app.route("/students")
+@login_required
 def view_students():
     """
     Shows every student currently in the database, in a table.
@@ -60,10 +144,11 @@ def view_students():
 
 
 @app.route("/search")
+@login_required
 def search_student():
     """
-    Shows a search box. If a 'name' query parameter is present in the URL
-    (e.g. /search?name=an), it searches the database and shows matching results.
+    Shows a search box. If a 'name' query parameter is present in the URL,
+    it searches the database and shows matching results.
     """
     query = request.args.get("name", "").strip()
     results = []
@@ -75,6 +160,7 @@ def search_student():
 
 
 @app.route("/sorted")
+@login_required
 def sorted_students():
     """
     Shows all students sorted by marks, highest first.
@@ -84,10 +170,10 @@ def sorted_students():
 
 
 @app.route("/rank")
+@login_required
 def rank_students():
     """
     Shows all students sorted by marks, with a rank number assigned to each.
-    Students with equal marks share the same rank (standard ranking rule).
     """
     students = database.get_students_sorted_by_marks()
 
@@ -97,7 +183,6 @@ def rank_students():
 
     for position, student in enumerate(students, start=1):
         if student["marks"] != previous_marks:
-            # Marks changed from the previous student, so this is a new rank
             current_rank = position
             previous_marks = student["marks"]
         ranked_students.append({
@@ -111,6 +196,7 @@ def rank_students():
 
 
 @app.route("/edit/<int:student_id>", methods=["GET", "POST"])
+@login_required
 def edit_student(student_id):
     """
     GET: Show a form pre-filled with the student's current details.
@@ -129,7 +215,6 @@ def edit_student(student_id):
         name = request.form.get("name", "").strip()
         marks = request.form.get("marks", "").strip()
 
-        # --- Same validation rules as Add Student ---
         if name == "" or roll_no == "" or marks == "":
             error_message = "All fields are required. Please fill in every field."
         elif not roll_no.isdigit():
@@ -144,13 +229,13 @@ def edit_student(student_id):
                 return redirect(url_for("view_students"))
             else:
                 error_message = f"Roll number {roll_no} already belongs to another student."
-                # Re-fetch so the form still shows what the user just typed, not stale old data
                 student = {"id": student_id, "roll_no": roll_no, "name": name, "marks": marks}
 
     return render_template("edit.html", student=student, error_message=error_message)
 
 
 @app.route("/delete/<int:student_id>")
+@login_required
 def confirm_delete(student_id):
     """
     Shows a confirmation page before actually deleting a student.
@@ -164,10 +249,10 @@ def confirm_delete(student_id):
 
 
 @app.route("/delete/<int:student_id>", methods=["POST"])
+@login_required
 def delete_student(student_id):
     """
     Actually deletes the student from the database, then redirects to View Students.
-    This only runs when the confirmation form is submitted (POST), never on a simple GET visit.
     """
     database.delete_student(student_id)
     return redirect(url_for("view_students"))

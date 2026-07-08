@@ -9,31 +9,50 @@
 <body>
 
     <div class="container">
+
+        {% if is_logged_in %}
+            <div class="user-bar">
+                <span>Logged in as <strong>{{ username }}</strong></span>
+                <a href="/logout" class="back-link">Logout</a>
+            </div>
+        {% endif %}
+
         <h1>📚 Smart Student Search &amp; Rank System</h1>
         <p class="subtitle">Store, search, sort, and rank students — all in one place.</p>
 
-        <div class="menu-grid">
-            <a href="/add" class="menu-card">
-                <span class="menu-icon">➕</span>
-                <span>Add Student</span>
-            </a>
-            <a href="/students" class="menu-card">
-                <span class="menu-icon">📋</span>
-                <span>View Students</span>
-            </a>
-            <a href="/search" class="menu-card">
-                <span class="menu-icon">🔍</span>
-                <span>Search Student</span>
-            </a>
-            <a href="/sorted" class="menu-card">
-                <span class="menu-icon">🔃</span>
-                <span>Sort by Marks</span>
-            </a>
-            <a href="/rank" class="menu-card">
-                <span class="menu-icon">🏆</span>
-                <span>Rank Students</span>
-            </a>
-        </div>
+        {% if is_logged_in %}
+            <div class="menu-grid">
+                <a href="/add" class="menu-card">
+                    <span class="menu-icon">➕</span>
+                    <span>Add Student</span>
+                </a>
+                <a href="/students" class="menu-card">
+                    <span class="menu-icon">📋</span>
+                    <span>View Students</span>
+                </a>
+                <a href="/search" class="menu-card">
+                    <span class="menu-icon">🔍</span>
+                    <span>Search Student</span>
+                </a>
+                <a href="/sorted" class="menu-card">
+                    <span class="menu-icon">🔃</span>
+                    <span>Sort by Marks</span>
+                </a>
+                <a href="/rank" class="menu-card">
+                    <span class="menu-icon">🏆</span>
+                    <span>Rank Students</span>
+                </a>
+            </div>
+        {% else %}
+            <div class="auth-message">
+                <p>Please log in or register to use the system.</p>
+                <div class="auth-buttons">
+                    <a href="/login" class="btn-primary auth-btn">Login</a>
+                    <a href="/register" class="btn-primary auth-btn">Register</a>
+                </div>
+            </div>
+        {% endif %}
+
     </div>
 
 </body>

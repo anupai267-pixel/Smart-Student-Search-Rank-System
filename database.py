@@ -32,6 +32,25 @@ def create_table():
     connection.close()
 
 
+def create_users_table():
+    """
+    Creates the 'users' table if it does not already exist.
+    Stores login accounts: a unique username and a securely hashed password.
+    We NEVER store the real password, only its hash.
+    """
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL
+        )
+    """)
+    connection.commit()
+    connection.close()
+
+
 def add_student(roll_no, name, marks):
     """
     Inserts a new student into the students table.
@@ -47,7 +66,6 @@ def add_student(roll_no, name, marks):
         connection.commit()
         success = True
     except sqlite3.IntegrityError:
-        # This happens if roll_no already exists, since we marked it UNIQUE
         success = False
     connection.close()
     return success
@@ -59,7 +77,7 @@ def get_all_students():
     """
     connection = get_connection()
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM students")
+    cursor.execute("SELECT * FROM students ORDER BY roll_no ASC")
     rows = cursor.fetchall()
     connection.close()
     return rows
@@ -80,7 +98,6 @@ def get_student_by_id(student_id):
 def search_students_by_name(name_query):
     """
     Returns all students whose name contains the given search text (case-insensitive).
-    Example: searching 'an' will match 'Anita', 'Ananya', 'Sanjay', etc.
     """
     connection = get_connection()
     cursor = connection.cursor()
@@ -96,7 +113,6 @@ def search_students_by_name(name_query):
 def get_students_sorted_by_marks():
     """
     Returns all students sorted by marks in descending order (highest first).
-    This is used for both the 'Sort' feature and the 'Rank' feature.
     """
     connection = get_connection()
     cursor = connection.cursor()
@@ -137,9 +153,44 @@ def delete_student(student_id):
     connection.close()
 
 
+def add_user(username, password_hash):
+    """
+    Inserts a new user account. password_hash must already be hashed
+    (never pass a plain-text password here).
+    Returns True if successful, False if the username is already taken.
+    """
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            "INSERT INTO users (username, password_hash) VALUES (?, ?)",
+            (username, password_hash)
+        )
+        connection.commit()
+        success = True
+    except sqlite3.IntegrityError:
+        success = False
+    connection.close()
+    return success
+
+
+def get_user_by_username(username):
+    """
+    Returns a single user matching the given username, or None if not found.
+    Used during login to check credentials.
+    """
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
+    row = cursor.fetchone()
+    connection.close()
+    return row
+
+
 if __name__ == "__main__":
     # This block only runs if you execute "python database.py" directly.
-    # It's a simple self-test to confirm the database and table are created correctly.
+    # It's a simple self-test to confirm both tables are created correctly.
     create_table()
-    print("Database and 'students' table created successfully!")
+    create_users_table()
+    print("Database, 'students' table, and 'users' table created successfully!")
     print("Database file location: students.db (in this same folder)")
